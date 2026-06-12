@@ -1,5 +1,8 @@
 # NovaLens AI (Phase 1: Image Retrieval System)
 
+> [!NOTE]
+> **Project Status:** Currently fully working and functional. Additional features and modifications are yet to come!
+
 NovaLens AI is a multimodal product discovery platform for e-commerce. This is the **Phase 1** implementation, which realizes a complete visual (image-based) product similarity search engine.
 
 When a user uploads a product image:
