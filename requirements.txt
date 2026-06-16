@@ -4,6 +4,10 @@ pandas
 numpy
 pillow
 torch
+torchvision
 faiss-cpu
 git+https://github.com/openai/CLIP.git
 python-multipart
+realesrgan
+opencv-contrib-python
+httpx

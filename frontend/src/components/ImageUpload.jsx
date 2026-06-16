@@ -6,11 +6,17 @@ function ImageUpload({ onImageSelected, onImageCleared, selectedFile }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Sync preview when selectedFile changes externally (e.g., cleared from parent)
+  // Sync preview when selectedFile changes externally (e.g., cleared or restored)
   useEffect(() => {
     if (!selectedFile) {
       setPreviewUrl(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    } else {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
     }
   }, [selectedFile]);
 
@@ -70,10 +76,10 @@ function ImageUpload({ onImageSelected, onImageCleared, selectedFile }) {
         onDragLeave={handleDrag}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`glass relative cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-300 ${
+        className={`glass relative cursor-pointer rounded-3xl border-2 border-dashed p-8 text-center transition-all duration-300 ${
           isDragActive
-            ? 'border-purple-500 bg-purple-950/20 scale-[1.01]'
-            : 'border-slate-700 hover:border-slate-500 bg-slate-900/40'
+            ? 'border-[#4A90E2] bg-[#EEF5FC] scale-[1.01]'
+            : 'border-[#16324F]/30 hover:border-[#16324F] bg-white/40 hover:bg-[#EEF5FC]/30 hover:shadow-[0_8px_30px_rgba(22,50,79,0.05)]'
         }`}
       >
         <input
@@ -89,35 +95,35 @@ function ImageUpload({ onImageSelected, onImageCleared, selectedFile }) {
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full h-48 object-cover rounded-xl shadow-lg border border-slate-700"
+              className="w-full h-48 object-contain bg-white rounded-2xl shadow-md border border-[#16324F]/10 p-2"
             />
             <button
               onClick={clearSelection}
-              className="absolute -top-2 -right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200 shadow-md"
+              className="absolute -top-2.5 -right-2.5 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200 shadow-md border border-white"
               title="Remove image"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
-            <div className="mt-4 text-sm text-slate-300 font-medium truncate max-w-full">
-              {selectedFile?.name}
+            <div className="mt-4 text-xs text-[#10243A] font-bold truncate max-w-full bg-[#16324F]/5 px-3 py-1.5 rounded-lg border border-[#16324F]/10">
+              {selectedFile?.name || 'Restored Image'}
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center space-y-4 py-4">
-            <div className="p-4 rounded-full bg-slate-800/80 text-purple-400 border border-slate-700 shadow-inner group-hover:scale-110 transition-transform">
-              <Upload size={32} />
+            <div className="p-4 rounded-2xl bg-[#16324F]/5 text-[#16324F] border border-[#16324F]/10 shadow-inner group-hover:scale-105 transition-all">
+              <Upload size={28} />
             </div>
             <div>
-              <p className="text-base font-semibold text-slate-200">
-                Drag and drop your product image here
+              <p className="text-sm font-extrabold text-[#10243A]">
+                Upload Product Image
               </p>
-              <p className="text-sm text-slate-400 mt-1">
-                or click to browse from files
+              <p className="text-xs text-[#5B7083] font-medium mt-1">
+                Drag & Drop or click to browse
               </p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium justify-center">
-              <ImageIcon size={14} />
-              <span>Supports PNG, JPG, JPEG, WEBP up to 5MB</span>
+            <div className="flex items-center gap-1.5 text-[10px] text-[#5B7083] font-bold uppercase tracking-wider justify-center">
+              <ImageIcon size={12} className="text-[#4A90E2]" />
+              <span>PNG, JPG, JPEG, WEBP up to 5MB</span>
             </div>
           </div>
         )}
