@@ -115,7 +115,7 @@ function ImageUpload({ onImageSelected, onImageCleared, selectedFile }) {
             </div>
             <div>
               <p className="text-sm font-extrabold text-[#10243A]">
-                Upload Product Image
+                Upload Fashion Image
               </p>
               <p className="text-xs text-[#5B7083] font-medium mt-1">
                 Drag & Drop or click to browse

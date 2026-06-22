@@ -46,13 +46,38 @@ def load_faiss_index(index_path: str):
     except Exception as e:
         raise RuntimeError(f"Failed to read FAISS index from {index_path}: {e}")
 
+import csv
+
 def load_metadata(metadata_path: str) -> List[Dict[str, Any]]:
-    """Loads product catalog metadata from a serialized pickle file."""
+    """Loads product catalog metadata from a unified CSV file."""
     if not os.path.exists(metadata_path):
-        raise FileNotFoundError(f"Metadata file not found at: {metadata_path}")
+        raise FileNotFoundError(f"Metadata CSV file not found at: {metadata_path}")
     try:
-        with open(metadata_path, 'rb') as f:
-            return pickle.load(f)
+        metadata = []
+        with open(metadata_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Convert price to float if present
+                price_val = 0.0
+                if "price" in row:
+                    try:
+                        price_val = float(row["price"])
+                    except ValueError:
+                        pass
+                
+                # Map product_name to name and primary_image to image_path to preserve contract
+                product_item = {
+                    "product_id": row.get("product_id", ""),
+                    "name": row.get("product_name", ""),
+                    "category": row.get("category", ""),
+                    "description": row.get("description", ""),
+                    "price": price_val,
+                    "image_path": row.get("primary_image", ""),
+                    "all_image_paths": row.get("all_image_paths", "")
+                }
+                metadata.append(product_item)
+            
+        return metadata
     except Exception as e:
         raise RuntimeError(f"Failed to load metadata from {metadata_path}: {e}")
 

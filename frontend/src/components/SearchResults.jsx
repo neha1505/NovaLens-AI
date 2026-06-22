@@ -57,9 +57,9 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
           <Compass size={28} className="text-[#4A90E2]" />
         </div>
         <div className="space-y-2">
-          <h3 className="text-lg font-extrabold text-[#10243A]">Discover Products Instantly</h3>
+          <h3 className="text-lg font-extrabold text-[#10243A]">Discover Fashion Instantly</h3>
           <p className="text-sm text-[#5B7083] font-medium leading-relaxed max-w-sm mx-auto">
-            Upload an image, enter a search query, or combine both to explore visually and semantically similar catalog products.
+            Upload an image, enter a search query, or combine both to explore visually and semantically similar fashion items.
           </p>
         </div>
       </div>
@@ -73,7 +73,7 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
           <EyeOff size={28} className="text-[#5B7083]/80" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-base font-extrabold text-[#10243A]">No matching products found</h3>
+          <h3 className="text-base font-extrabold text-[#10243A]">No matching fashion items found</h3>
           <p className="text-xs text-[#5B7083] font-medium max-w-xs mx-auto leading-relaxed">
             Try adjusting your search criteria, queries, or weights to locate items.
           </p>

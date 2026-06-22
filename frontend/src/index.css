@@ -146,12 +146,13 @@ body {
   cursor: not-allowed;
 }
 
-/* Optimization utility for low-resolution catalog images */
+/* Optimization utility for low-resolution catalog images - Disabled to prevent pixelation/degradation
 .crisp-image {
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   image-rendering: pixelated;
 }
+*/
 
 /* Custom Scrollbar for elegant feel */
 ::-webkit-scrollbar {

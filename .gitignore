@@ -3,32 +3,63 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-venv/
-.env
 
-# FastAPI
+venv/
+.venv/
+env/
+
+# Environment Variables
+.env
+.env.local
+.env.production
+
+# FastAPI / Logs
 *.log
 
-# React
+# React / Vite
 node_modules/
 dist/
+.vite/
 
-# VS Code
+# VS Code / IDE
 .vscode/
+.idea/
 
-# OS
+
+# OS Files
+
 .DS_Store
 Thumbs.db
 
-# FAISS indexes (optional if too large)
-vector_store/*.index
+# FAISS
 
-# Model files
+vector_store/*.index
+*.faiss
+
+# Model Files
+
 *.pth
 *.pt
-node_modules/
-venv/
+*.ckpt
+*.bin
+
+
+# Dataset
+
 data/fashion/
 data/enhanced_images/
-__pycache__/
-*.pyc
+DeepFashion/
+datasets/
+
+
+# Uploads / Temp
+
+uploads/
+temp/
+tmp/
+
+
+# Testing
+
+.pytest_cache/
+.coverage

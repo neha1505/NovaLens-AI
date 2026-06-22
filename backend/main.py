@@ -11,7 +11,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from backend.routes.image_search import router as search_router, get_search_service
 from backend.routes.text_search import router as text_router
 from backend.routes.multimodal_search import router as multimodal_router
+from backend.routes.products import router as products_router
+from backend.routes.assistant import router as assistant_router
+from backend.routes.shopping_intelligence import router as shopping_intelligence_router
 from ml.clip.clip_loader import CLIPLoader
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,7 +39,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="NovaLens AI API",
-    description="Multimodal e-commerce product discovery backend",
+    description="Multimodal fashion discovery backend",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -49,31 +53,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Serve product images statically
+# Serve DeepFashion images statically
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-fashion_images_dir = os.path.join(base_dir, "data", "fashion", "images")
-images_dir = os.path.join(base_dir, "data", "images")
-enhanced_images_dir = os.path.join(base_dir, "data", "enhanced_images")
+deepfashion_dir = os.path.join(base_dir, "data", "DeepFashion")
 
-# Ensure enhanced images directory exists
-os.makedirs(enhanced_images_dir, exist_ok=True)
-
-if os.path.exists(fashion_images_dir):
-    app.mount("/images/fashion/images", StaticFiles(directory=fashion_images_dir), name="fashion_images")
-    print(f"Mounted static fashion images folder from: {fashion_images_dir}")
-if os.path.exists(enhanced_images_dir):
-    app.mount("/images/enhanced_images", StaticFiles(directory=enhanced_images_dir), name="enhanced_images")
-    print(f"Mounted static enhanced images folder from: {enhanced_images_dir}")
-if os.path.exists(images_dir):
-    app.mount("/images", StaticFiles(directory=images_dir), name="images")
-    print(f"Mounted static images folder from: {images_dir}")
+if os.path.exists(deepfashion_dir):
+    app.mount("/images/DeepFashion", StaticFiles(directory=deepfashion_dir), name="deepfashion_images")
+    print(f"Mounted static DeepFashion images folder from: {deepfashion_dir}")
 else:
-    print(f"Warning: Images folder does not exist at {images_dir}")
+    print(f"Warning: DeepFashion folder does not exist at {deepfashion_dir}")
 
 # Include search routes
 app.include_router(search_router, prefix="/api")
 app.include_router(text_router, prefix="/api")
 app.include_router(multimodal_router, prefix="/api")
+app.include_router(products_router, prefix="/api")
+app.include_router(assistant_router, prefix="/api")
+app.include_router(shopping_intelligence_router, prefix="/api")
+
 
 @app.get("/")
 async def root():

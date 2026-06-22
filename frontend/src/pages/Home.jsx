@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageUpload from '../components/ImageUpload';
 import TextSearch from '../components/TextSearch';
 import MultimodalSearch from '../components/MultimodalSearch';
 import SearchResults from '../components/SearchResults';
-import { searchByImage, searchByText, multimodalSearch } from '../services/api';
+import { searchByImage, searchByText, multimodalSearch, getPersonalizedRecommendations } from '../services/api';
+import ProductCard from '../components/ProductCard';
 import { Search, Sparkles, RefreshCw, AlertCircle, History, Trash2, Image as ImageIcon, Eye, Github } from 'lucide-react';
+
 
 // Helper to convert base64 data URL to a File object
 const dataURLtoFile = (dataurl, filename) => {
@@ -49,6 +52,42 @@ function Home() {
       return [];
     }
   });
+
+  // Recently Viewed & Recommendation States
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [recsLoading, setRecsLoading] = useState(false);
+  const [recsError, setRecsError] = useState(null);
+
+  useEffect(() => {
+    const loadHistoryAndRecs = async () => {
+      try {
+        const stored = localStorage.getItem('novalens_recently_viewed');
+        const viewedItems = stored ? JSON.parse(stored) : [];
+        setRecentlyViewed(viewedItems);
+        
+        if (viewedItems && viewedItems.length > 0) {
+          setRecsLoading(true);
+          setRecsError(null);
+          try {
+            const ids = viewedItems.map(item => item.product_id);
+            const recs = await getPersonalizedRecommendations(ids);
+            setRecommendations(recs);
+          } catch (err) {
+            console.error("Failed to fetch recommendations:", err);
+            setRecsError("Failed to fetch recommendations. Make sure the backend server is running.");
+          } finally {
+            setRecsLoading(false);
+          }
+        } else {
+          setRecommendations([]);
+        }
+      } catch (e) {
+        console.error("Error loading recently viewed or recommendations:", e);
+      }
+    };
+    loadHistoryAndRecs();
+  }, []);
 
   const handleImageSelected = (file) => {
     setSelectedFile(file);
@@ -206,13 +245,11 @@ function Home() {
 
     if (item.type === 'text') {
       setRestoredTextQuery(item.queryText);
-      await handleTextSearch(item.queryText);
     } else if (item.type === 'image') {
       if (item.imagePreview && item.imageName) {
         const file = dataURLtoFile(item.imagePreview, item.imageName);
         if (file) {
           setSelectedFile(file);
-          await executeImageSearch(file);
         }
       }
     } else if (item.type === 'multimodal') {
@@ -225,12 +262,6 @@ function Home() {
       }
       setRestoredMultimodalQuery(item.queryText || '');
       setRestoredMultimodalWeight(item.imageWeight);
-      
-      await handleMultimodalSearch({
-        image: file,
-        queryText: item.queryText || '',
-        imageWeight: item.imageWeight
-      });
     }
   };
 
@@ -265,9 +296,11 @@ function Home() {
           </div>
           
           <nav className="hidden sm:flex items-center gap-6 text-sm font-semibold text-[#5B7083]">
-            <a href="#" className="text-[#16324F] transition-colors">Home</a>
-            <a href="#" className="hover:text-[#16324F] transition-colors">Search</a>
-            <a href="#" className="hover:text-[#16324F] transition-colors">About</a>
+            <Link to="/" className="text-[#16324F] transition-colors">Home</Link>
+            <Link to="/assistant" className="hover:text-[#16324F] transition-colors flex items-center gap-1">
+              <Sparkles size={14} className="text-[#4A90E2]" />
+              AI Assistant
+            </Link>
             <a 
               href="https://github.com/neha1505/NovaLens-AI" 
               target="_blank" 
@@ -292,13 +325,13 @@ function Home() {
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-white/50 text-[#16324F] text-[11px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-md">
             <Sparkles size={13} className="text-[#4A90E2]" />
-            <span>AI-Powered Multimodal Product Discovery</span>
+            <span>AI-Powered Multimodal Fashion Discovery</span>
           </div>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#16324F]">
             NovaLens AI
           </h2>
           <p className="text-base sm:text-lg text-[#5B7083] font-medium leading-relaxed max-w-2xl mx-auto">
-            Search products using images, natural language, or both. Seamlessly retrieve and browse our visual fashion catalog.
+            Search and discover clothing using images, text, or multimodal AI. Seamlessly retrieve and browse our visual fashion catalog.
           </p>
         </motion.div>
 
@@ -445,6 +478,93 @@ function Home() {
             <div className="max-w-6xl mx-auto">
               <SearchResults results={searchResults} loading={loading} searchTime={searchTime} searchMode={searchMode} />
             </div>
+
+            {/* Recently Viewed & Personalized Recommendations */}
+            {recentlyViewed.length === 0 ? (
+              <div className="glass p-12 text-center max-w-xl mx-auto flex flex-col items-center space-y-5 border border-white/50 bg-white/30 mt-12">
+                <div className="p-4 rounded-2xl bg-[#16324F]/5 text-[#16324F] border border-[#16324F]/10 shadow-sm">
+                  <Sparkles size={28} className="text-[#4A90E2]" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-extrabold text-[#10243A]">Recommended For You</h3>
+                  <p className="text-xs text-[#5B7083] font-medium leading-relaxed max-w-sm mx-auto">
+                    Start exploring fashion items to receive personalized recommendations.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-12 mt-12">
+                {/* Recently Viewed Grid */}
+                <div className="space-y-6">
+                  <div className="border-b border-[#16324F]/10 pb-4 flex items-center justify-between">
+                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#10243A] flex items-center gap-2">
+                      <History size={16} className="text-[#4A90E2]" />
+                      <span>Recently Viewed</span>
+                      <span className="text-[10px] font-bold text-[#16324F] bg-[#16324F]/5 border border-[#16324F]/10 px-2 py-0.5 rounded-full">
+                        Last {recentlyViewed.length} items
+                      </span>
+                    </h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {recentlyViewed.map((item) => (
+                      <div key={item.product_id} className="h-full">
+                        <ProductCard product={item} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recommended For You Grid */}
+                <div className="space-y-6">
+                  <div className="border-b border-[#16324F]/10 pb-4 flex items-center justify-between">
+                    <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#10243A] flex items-center gap-2">
+                      <Sparkles size={16} className="text-[#4A90E2]" />
+                      <span>Recommended For You</span>
+                      <span className="text-[10px] font-bold text-[#16324F] bg-[#16324F]/5 border border-[#16324F]/10 px-2 py-0.5 rounded-full animate-pulse">
+                        Personalized matches
+                      </span>
+                    </h3>
+                  </div>
+
+                  {recsLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {Array.from({ length: 4 }).map((_, idx) => (
+                        <div key={idx} className="glass rounded-3xl overflow-hidden h-[360px] flex flex-col animate-pulse border border-[#16324F]/8">
+                          <div className="h-36 bg-slate-200/50 w-full"></div>
+                          <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
+                            <div className="space-y-2">
+                              <div className="h-3 bg-slate-200/50 rounded w-1/4"></div>
+                              <div className="h-5 bg-slate-200/50 rounded w-3/4"></div>
+                            </div>
+                            <div className="space-y-2 pt-2 border-t border-slate-100/30">
+                              <div className="h-3 bg-slate-200/50 rounded w-full"></div>
+                              <div className="h-3 bg-slate-200/50 rounded w-2/3"></div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : recsError ? (
+                    <div className="glass p-6 text-center text-red-600 text-xs font-semibold border border-red-100/50 bg-red-50/20">
+                      {recsError}
+                    </div>
+                  ) : recommendations.length === 0 ? (
+                    <div className="glass p-8 text-center text-[#5B7083] text-xs font-medium">
+                      No recommendation matches found.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                      {recommendations.map((rec) => (
+                        <div key={rec.product_id} className="h-full">
+                          <ProductCard product={rec} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 5. Search History Sidebar Panel */}
@@ -531,7 +651,7 @@ function Home() {
             <Eye size={16} className="text-[#4A90E2]" />
             <span className="font-extrabold text-[#16324F]">NovaLens AI</span>
             <span className="text-[#5B7083]/40">|</span>
-            <span>Multimodal Discovery Platform</span>
+            <span>Multimodal Fashion Discovery Platform</span>
           </div>
           <div className="flex items-center gap-2">
             <span>Built with:</span>

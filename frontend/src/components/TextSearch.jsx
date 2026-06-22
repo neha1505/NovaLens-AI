@@ -18,15 +18,14 @@ function TextSearch({ onSearch, loading, initialQuery = '' }) {
   const handleSuggestionClick = (suggestion) => {
     if (!loading) {
       setQuery(suggestion);
-      onSearch(suggestion);
     }
   };
 
   const suggestions = [
-    "formal white shirt",
-    "black backpack",
-    "red sneakers",
-    "blue jeans"
+    "blue denim jacket",
+    "floral summer dress",
+    "formal black blazer",
+    "women's winter coat"
   ];
 
   return (
@@ -40,7 +39,12 @@ function TextSearch({ onSearch, loading, initialQuery = '' }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search products using natural language..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
+          }}
+          placeholder="Search fashion items using natural language..."
           className="w-full bg-white/50 border border-[#16324F]/12 rounded-2xl py-4 pl-12 pr-32 text-[#10243A] placeholder-[#5B7083]/70 focus:outline-none focus:border-[#4A90E2] focus:ring-1 focus:ring-[#4A90E2] transition-all font-sans text-sm shadow-inner"
           disabled={loading}
         />

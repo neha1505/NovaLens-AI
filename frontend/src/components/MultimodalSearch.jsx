@@ -181,6 +181,11 @@ function MultimodalSearch({ onSearch, loading, initialFile = null, initialQuery 
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmit(e);
+              }
+            }}
             placeholder="e.g. similar but black, sleeveless, striped shirt..."
             className="w-full bg-white/50 border border-[#16324F]/12 rounded-2xl py-3.5 px-4 text-[#10243A] placeholder-[#5B7083]/70 focus:outline-none focus:border-[#4A90E2] focus:ring-1 focus:ring-[#4A90E2] transition-all font-sans text-sm shadow-inner"
             disabled={loading}

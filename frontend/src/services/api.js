@@ -60,5 +60,81 @@ export const multimodalSearch = async (image, queryText, imageWeight) => {
 };
 
 export const getImageUrl = (imagePath) => {
+  if (!imagePath) return "";
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
   return `http://localhost:8000/images/${imagePath}`;
 };
+
+export const getProductDetails = async (productId) => {
+  try {
+    const response = await api.get(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    throw error.response?.data?.detail || 'An error occurred while fetching product details.';
+  }
+};
+
+export const getSimilarProducts = async (productId) => {
+  try {
+    const response = await api.get(`/products/${productId}/similar`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching similar products:', error);
+    throw error.response?.data?.detail || 'An error occurred while fetching similar products.';
+  }
+};
+
+export const getPersonalizedRecommendations = async (productIds) => {
+  try {
+    const productIdsStr = productIds.join(',');
+    const response = await api.get(`/recommendations?product_ids=${encodeURIComponent(productIdsStr)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching personalized recommendations:', error);
+    throw error.response?.data?.detail || 'An error occurred while fetching recommendations.';
+  }
+};
+
+export const sendAssistantMessage = async (message, history = [], recentlyViewed = []) => {
+  try {
+    const payload = {
+      message,
+      history: history.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      })),
+      recently_viewed: recentlyViewed
+    };
+    const response = await api.post('/assistant/chat', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error in assistant chat request:', error);
+    throw error.response?.data?.detail || 'An error occurred while connecting to the AI Assistant service.';
+  }
+};
+
+export const getProductOutfit = async (productId, recentlyViewedIds = []) => {
+  try {
+    const idsStr = recentlyViewedIds.join(',');
+    const response = await api.get(`/products/${productId}/outfit?recently_viewed=${encodeURIComponent(idsStr)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching outfit recommendations:', error);
+    throw error.response?.data?.detail || 'An error occurred while generating outfit recommendations.';
+  }
+};
+
+export const getProductComparison = async (productId) => {
+  try {
+    const response = await api.get(`/products/${productId}/compare`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching shopping intelligence comparison:', error);
+    throw error.response?.data?.detail || 'An error occurred while loading shopping intelligence comparison.';
+  }
+};
+
+

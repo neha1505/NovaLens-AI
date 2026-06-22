@@ -12,11 +12,7 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.client = TestClient(app)
-        cls.sample_image_path = os.path.join("data", "fashion", "images", "15970.jpg")
-        
-        # Fallback path if data_dir structure differs
-        if not os.path.exists(cls.sample_image_path):
-            cls.sample_image_path = os.path.join("data", "images", "15970.jpg")
+        cls.sample_image_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
 
     def test_multimodal_endpoint_availability(self):
         """Verify the multimodal endpoint returns a response (checks routing setup)."""
@@ -29,7 +25,7 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
         self.assertTrue(os.path.exists(self.sample_image_path), f"Test image not found at {self.sample_image_path}")
         
         with open(self.sample_image_path, "rb") as img_file:
-            files = {"image": ("15970.jpg", img_file, "image/jpeg")}
+            files = {"image": ("01_1_front.jpg", img_file, "image/jpeg")}
             data = {"image_weight": "1.0"} # Full image weight
             response = self.client.post("/api/multimodal-search", files=files, data=data)
             
@@ -42,12 +38,12 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
         first = results[0]
         self.assertIn("product_id", first)
         self.assertIn("similarity_score", first)
-        self.assertEqual(first["product_id"], "15970") # Top match should be itself
+        self.assertEqual(first["product_id"], "MEN_Denim_id_00000080") # Top match should be itself
 
     def test_multimodal_search_text_only(self):
         """Test multimodal search with query text but no uploaded image."""
         data = {
-            "query_text": "red sneakers",
+            "query_text": "blue denim jacket",
             "image_weight": "0.0" # Text focus
         }
         response = self.client.post("/api/multimodal-search", data=data)
@@ -62,9 +58,9 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
         self.assertTrue(os.path.exists(self.sample_image_path))
         
         with open(self.sample_image_path, "rb") as img_file:
-            files = {"image": ("15970.jpg", img_file, "image/jpeg")}
+            files = {"image": ("01_1_front.jpg", img_file, "image/jpeg")}
             data = {
-                "query_text": "similar but red color",
+                "query_text": "similar but blue color",
                 "image_weight": "0.6" # Balance visual and text
             }
             response = self.client.post("/api/multimodal-search", files=files, data=data)

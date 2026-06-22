@@ -1,20 +1,26 @@
-# NovaLens AI: Multimodal Product Discovery Platform
+<h1 align="center" style="background-color: #16324F; color: #FFFFFF; font-weight: bold; padding: 25px; border-radius: 16px;">NovaLens AI: Multimodal Fashion Discovery Platform</h1>
 
-NovaLens AI is a modern, premium, multimodal product discovery platform for e-commerce. It enables customers to find products via visual similarities, semantic natural language, or a hybrid combination of both using state-of-the-art vector embeddings and similarity search index models.
-
----
-
-## 1. Project Overview & Features
-* **Visual Search (Phase 1)**: Drag and drop reference images to perform instantaneous visual searches.
-* **Semantic Text Search (Phase 2)**: Query the catalog using natural language (e.g., `"formal white shirt"`, `"black leather boots"`) leveraging CLIP's aligned text-to-image vector space.
-* **Multimodal Search (Phase 3)**: Mix visual input with text modifiers (e.g., upload a red shirt, type `"similar but black color"`) and control their influence using an interactive weight slider.
-* **Query Explainability**: Real-time explanation panel detailing weights, influences, and the fusion mathematical process.
-* **Search History Sidebar**: Stays persisted in the browser local storage, keeping the latest 10 query states (including base64 visual backups) to easily restore inputs and reload results.
-* **4x Resolution Enhancement**: Fallback cascading image enhancement upscaling pipeline to convert 60x80 icons to high-definition 240x320 assets.
+NovaLens AI is a modern, premium, multimodal fashion discovery platform. The project is fully completed and operational, enabling customers to discover clothing via visual similarities, semantic natural language, or a hybrid combination of both. It leverages state-of-the-art vector embeddings, similarity search indices, and a personalized recommendation engine to provide a state-of-the-art catalog retrieval experience.
 
 ---
 
-## 2. Architecture Diagram
+<h2 style="font-weight: bold;">1. Project Overview & Features</h2>
+
+NovaLens AI is fully completed with all its core capabilities active:
+
+- <b>Home / Landing Workspace</b>: A sleek, glassmorphic dashboard showcasing the search mode controls, recent search history sidebar, and recommendation modules.
+- <b>Visual Similarity Search (Phase 1)</b>: Drag-and-drop or upload custom catalog reference images to perform instantaneous visual searches. Features automatic feature extraction using CLIP.
+- <b>Semantic Text Search (Phase 2)</b>: Query the clothing catalog using complex natural language (e.g., `"blue denim jacket"`, `"floral summer dress"`) leveraging CLIP's aligned text-to-image vector space.
+- <b>Multimodal Search (Phase 3)</b>: Mix visual input with text modifiers (e.g., upload a blue shirt, type `"similar but black color"`) and control their influence using an interactive weight slider.
+- <b>Query Explainability</b>: A real-time mathematical fusion breakdown panel detailing weights, vector scaling, and relative input influence during multimodal queries.
+- <b>AI Fashion Assistant (RAG)</b>: An interactive conversational fashion styling advisor. Users can ask for outfit ideas, college outfits, or styling tips. The assistant uses catalog context retrieval to display referenced product cards directly in the chat sidebar.
+- <b>Product Details & Recommendations</b>: Dedicated detail views displaying catalog parameters, prices, and high-resolution product imagery, paired with a personalized recommendations carousel based on recently viewed items.
+- <b>Compare Online (AI Shopping Intelligence)</b>: Real-time price and offer comparison across whitelisted trusted online retailers (e.g. Myntra, Ajio, Amazon, Flipkart, Tata Cliq). Deals are evaluated using a multi-factor Shopping Score (rating, review count, price, trust) to recommend the <i>Best Price (Budget Pick)</i>, <i>Best Quality (Top Rated)</i>, and <i>Best Overall Value (Smart Pick)</i>, along with a structured AI buying analysis summary.
+- <b>Local Search History</b>: Stays persisted in browser local storage, caching the latest 10 query states (including base64 visual backups) to easily restore inputs and reload results.
+
+---
+
+<h2 style="font-weight: bold;">2. Architecture Diagram</h2>
 
 ```mermaid
 graph TD
@@ -30,7 +36,7 @@ graph TD
     D --> E
     D --> F
     
-    E --> G["Weighted Embedding Fusion<br>V_fused = w * V_img + (1-w) * V_txt"]
+    E --> G["Weighted Embedding Fusion<br>V_fused = w · V_img + (1-w) · V_txt"]
     F --> G
     
     %% Similarity Search & Storage
@@ -39,52 +45,60 @@ graph TD
     G --> H
     
     H -- "Query Vector (1x512)" --> I["FAISS FlatIP Index Database"]
-    I -- "Top-K Matches" --> J["Metadata Mapping<br>(products.csv + metadata.pkl)"]
+    I -- "Top-K Matches" --> J["Metadata Mapping<br>(products.csv)"]
     J -- "Similarity Scores" --> K["FastAPI JSON Response"]
     K --> A
-    
-    %% Image Enhancer
-    L["Image Enhancement Pipeline"] -- "Upscales images 4x" --> M["enhanced_images/ folder"]
-    J --> M
 ```
 
 ---
 
-## 3. Technology Stack
-* **Frontend**: React (Vite), TailwindCSS, Axios, Lucide Icons
-* **Backend**: FastAPI (Python), Uvicorn ASGI Server
-* **ML Embeddings**: OpenAI CLIP (`ViT-B/32` model)
-* **Vector Index**: FAISS (Facebook AI Similarity Search - IndexFlatIP)
-* **Image Upscaling**: Real-ESRGAN (`RealESRGAN_x4plus`), OpenCV DNN Super Resolution (`FSRCNN`), OpenCV Lanczos4 Resampling
-* **Data Processing**: Pandas, NumPy, Pillow (PIL)
+<h2 style="font-weight: bold;">3. Technology Stack</h2>
+
+- <b>Frontend</b>: React (Vite), TailwindCSS, Framer Motion, Axios, Lucide Icons
+- <b>Backend</b>: FastAPI (Python), Uvicorn ASGI Server
+- <b>ML Embeddings</b>: OpenAI CLIP (`ViT-B/32` model)
+- <b>Vector Index</b>: FAISS (Facebook AI Similarity Search - IndexFlatIP)
+- <b>Data Processing</b>: Pandas, NumPy, Pillow (PIL)
 
 ---
 
-## 4. UI Demonstrations & Screenshots
+<h2 style="font-weight: bold;">4. UI Demonstrations & Screenshots</h2>
 
-### A. Image Similarity Search
-*Drag-and-drop a visual catalog reference to fetch matching silhouettes and cuts:*
+<h3 style="font-weight: bold;">A. Home / Landing Workspace</h3>
+<i>The default workspace highlighting the platform layout, search controls, search history sidebar, and recommendation modules:</i>
+![Home Page UI](docs/screenshots/home_page.png)
+
+<h3 style="font-weight: bold;">B. Image Similarity Search</h3>
+<i>Drag-and-drop a visual catalog reference to fetch matching silhouettes and cuts:</i>
 ![Image Search UI](docs/screenshots/image_search.png)
 
-### B. Semantic Text Search
-*Leverage natural language semantics instead of standard keyword matching:*
+<h3 style="font-weight: bold;">C. Semantic Text Search</h3>
+<i>Leverage natural language semantics instead of standard keyword matching:</i>
 ![Text Search UI](docs/screenshots/text_search.png)
 
-### C. Multimodal Search & Explainability
-*Fuses a visual target with written instructions, accompanied by the Query Explanation panel:*
+<h3 style="font-weight: bold;">D. Multimodal Search & Explainability</h3>
+<i>Fuses a visual target with written instructions, accompanied by the Query Explanation mathematical breakdown:</i>
 ![Multimodal Search UI](docs/screenshots/multimodal_search.png)
+
+<h3 style="font-weight: bold;">E. Product Details & Compare Online</h3>
+<i>Inspect product metadata, descriptions, and pricing, complete outfits with the AI fashion stylist, or scan/compare online offers across whitelisted retailers using the AI Shopping Intelligence Engine:</i>
+![Product Details UI](docs/screenshots/product_details.png)
+
+<h3 style="font-weight: bold;">F. AI Fashion Assistant & RAG Catalog Grounding</h3>
+<i>Consult the conversational fashion advisor for complete styling ideas. Relevant catalog products are retrieved and cited inside the referenced items sidebar:</i>
+![AI Assistant UI](docs/screenshots/ai_assistant.png)
 
 ---
 
-## 5. Installation & Setup Guide
+<h2 style="font-weight: bold;">5. Installation & Setup Guide</h2>
 
-### Step 1: Clone & Install Dependencies
+<h3 style="font-weight: bold;">Step 1: Clone & Install Dependencies</h3>
 1. **Clone the repository** and navigate to the root directory.
 2. **Install Python backend requirements**:
    ```bash
    pip install -r requirements.txt
    ```
-   *(This installs PyTorch, torchvision, fastapi, uvicorn, faiss, realesrgan, opencv-contrib-python, and the CLIP wheel).*
+   <i>(This installs PyTorch, torchvision, fastapi, uvicorn, faiss, and the CLIP wheel).</i>
 3. **Install React frontend requirements**:
    ```bash
    cd frontend
@@ -92,34 +106,28 @@ graph TD
    cd ..
    ```
 
-### Step 2: Dataset Preparation
-Ensure the Fashion dataset is located inside `data/fashion/images/` and `data/fashion/styles.csv` is present.
-1. Run the validation and pricing generation script:
+<h3 style="font-weight: bold;">Step 2: Dataset Preparation</h3>
+Ensure the DeepFashion In-Shop Clothes Retrieval dataset is downloaded and extracted inside `data/DeepFashion/`.
+1. Run the metadata compatibility generation script:
    ```bash
-   python data/prepare_dataset.py
+   python data/generate_metadata.py
    ```
-   *(This sanitizes IDs, generates synthetic price points, and creates `data/products.csv`).*
-2. **Upscale catalog images (Optional)**:
-   To upscale standard 60x80 images to high-definition:
+   <i>(This scans the dataset folders, compiles metadata, generates price points and descriptions, and creates `data/processed/products.csv`).</i>
+
+<h3 style="font-weight: bold;">Step 3: Rebuild Vector Index</h3>
+To extract image features using the CLIP vision model and serialize the FAISS index database:
+1. **Generate CLIP embeddings**:
    ```bash
-   # Upscale a test batch of 1000 images
-   python data/image_enhancement/upscale_images.py --limit 1000
-   
-   # Upscale the entire catalog
-   python data/image_enhancement/upscale_images.py --all
+   python vector_store/generate_embeddings.py
    ```
+   <i>(This will process all DeepFashion images and create `data/processed/image_embeddings.npy`).</i>
+2. **Build FAISS vector index**:
+   ```bash
+   python vector_store/build_faiss_index.py
+   ```
+   <i>(This compiles the vector search index at `data/processed/faiss.index`).</i>
 
-### Step 3: Rebuild Vector Index
-To compile image embeddings and serialize FAISS metadata:
-```bash
-python vector_store/build_image_index.py --limit 5000
-```
-*To index the entire 44,000+ fashion catalog, pass `--limit -1`:*
-```bash
-python vector_store/build_image_index.py --limit -1
-```
-
-### Step 4: Run Application Servers
+<h3 style="font-weight: bold;">Step 4: Run Application Servers</h3>
 1. **Launch FastAPI Backend** (from the root directory):
    ```bash
    uvicorn backend.main:app --host 127.0.0.1 --port 8000
@@ -133,28 +141,36 @@ python vector_store/build_image_index.py --limit -1
 
 ---
 
-## 6. Testing Guide
-Run backend pipeline tests and endpoint client validations locally:
+<h2 style="font-weight: bold;">6. Testing Guide</h2>
+
+Run backend pipeline tests and endpoint validations:
+
+Verify the CLIP and offline FAISS pipeline:
 ```bash
-# Verify CLIP and offline FAISS pipeline
 python test_backend.py
+```
 
-# Verify endpoint HTTP responses
+Verify endpoint HTTP responses:
+```bash
 python test_endpoint.py
+```
 
-# Run complete integration test suite
+Run the complete integration test suite:
+```bash
 python -m unittest tests/test_text_search.py tests/test_multimodal_search.py
+```
+
+Run the migration check script:
+```bash
+python scratch/verify_migration.py
 ```
 
 ---
 
-## 7. Troubleshooting & FAQS
+<h2 style="font-weight: bold;">7. Troubleshooting & FAQS</h2>
 
-#### Q: The endpoints fail with `Search index database files are missing`?
-**A**: This indicates the FAISS index database has not been initialized. Execute `python vector_store/build_image_index.py` from the root directory to generate the index and metadata mapping files.
+<h4 style="font-weight: bold;">Q: The endpoints fail with Search index database files are missing?</h4>
+<b>A</b>: This indicates the FAISS index database has not been initialized. Execute `python vector_store/build_faiss_index.py` from the root directory to generate the index and metadata mapping files.
 
-#### Q: Backend crashes with CUDA Out of Memory (OOM) errors?
-**A**: CLIPLoader automatically checks if a CUDA-compatible GPU is present and falls back to CPU if unavailable. If you hit OOM issues on low-end GPUs, force CPU mode by modifying the initialization device inside [clip_loader.py](file:///c:/Users/nehas/.gemini/antigravity-ide/scratch/NovaLens-AI/ml/clip/clip_loader.py) to `"cpu"`.
-
-#### Q: Low-resolution images are blurry on product cards?
-**A**: Execute the upscaling pipeline `python data/image_enhancement/upscale_images.py --limit 1000`. Once finished, rebuild the vector index (`python vector_store/build_image_index.py`) and restart the FastAPI server to update paths.
+<h4 style="font-weight: bold;">Q: Backend crashes with CUDA Out of Memory (OOM) errors?</h4>
+<b>A</b>: CLIPLoader automatically checks if a CUDA-compatible GPU is present and falls back to CPU if unavailable. If you hit OOM issues on low-end GPUs, force CPU mode by modifying the initialization device inside [clip_loader.py](file:///c:/Users/nehas/.gemini/antigravity-ide/scratch/NovaLens-AI/ml/clip/clip_loader.py) to `"cpu"`.

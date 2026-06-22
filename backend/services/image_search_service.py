@@ -18,8 +18,8 @@ from backend.utils.search_helpers import (
 class ImageSearchService:
     def __init__(self):
         self.base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-        self.index_path = os.path.join(self.base_dir, "vector_store", "image_faiss.index")
-        self.metadata_path = os.path.join(self.base_dir, "vector_store", "image_metadata.pkl")
+        self.index_path = os.path.join(self.base_dir, "data", "processed", "faiss.index")
+        self.metadata_path = os.path.join(self.base_dir, "data", "processed", "products.csv")
         
         self.index = None
         self.metadata = None

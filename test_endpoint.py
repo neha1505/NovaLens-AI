@@ -6,7 +6,7 @@ def test_api_endpoint():
     print("=== NovaLens AI API Endpoint Verification Test ===")
     
     url = "http://127.0.0.1:8000/api/image-search"
-    image_path = os.path.join("data", "fashion", "images", "15970.jpg")
+    image_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
     
     if not os.path.exists(image_path):
         print(f"[FAIL] Test image not found at: {image_path}")
@@ -16,7 +16,7 @@ def test_api_endpoint():
     
     try:
         with open(image_path, "rb") as f:
-            files = {"file": ("15970.jpg", f, "image/jpeg")}
+            files = {"file": ("01_1_front.jpg", f, "image/jpeg")}
             response = requests.post(url, files=files)
             
         print(f"Response status code: {response.status_code}")
@@ -37,11 +37,11 @@ def test_api_endpoint():
             
         # Top match validation
         top_match = results[0]
-        if top_match['product_id'] == "15970" and top_match['similarity_score'] > 0.99:
+        if top_match['product_id'] == "MEN_Denim_id_00000080" and top_match['similarity_score'] > 0.99:
             print("\n=== Endpoint HTTP Request Verification PASSED! ===")
             return True
         else:
-            print(f"[FAIL] Expected top match 15970 with ~100% score. Got {top_match['product_id']} with {top_match['similarity_score']*100:.2f}%")
+            print(f"[FAIL] Expected top match MEN_Denim_id_00000080 with ~100% score. Got {top_match['product_id']} with {top_match['similarity_score']*100:.2f}%")
             return False
             
     except Exception as e:

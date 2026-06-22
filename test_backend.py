@@ -26,7 +26,7 @@ def test_pipeline():
 
     # 2. Test Image Embedding generation
     print("\n2. Testing image embedding generation...")
-    sample_img_path = os.path.join("data", "fashion", "images", "15970.jpg")
+    sample_img_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
     if not os.path.exists(sample_img_path):
         print(f"[FAIL] Sample image not found at: {sample_img_path}")
         return False
@@ -66,11 +66,11 @@ def test_pipeline():
             print("[FAIL] Search returned zero matches.")
             return False
             
-        # Top 1 match for 15970.jpg should be 15970 with close to 100% similarity
+        # Top 1 match for DeepFashion query image should be itself with close to 100% similarity
         top_match = results[0]
         print(f"\nTop match details: ID={top_match['product_id']}, Name='{top_match['name']}', Score={top_match['similarity_score'] * 100:.2f}%")
-        if top_match['product_id'] != "15970":
-            print(f"[FAIL] Search failed: Expected top match '15970', got '{top_match['product_id']}'")
+        if top_match['product_id'] != "MEN_Denim_id_00000080":
+            print(f"[FAIL] Search failed: Expected top match 'MEN_Denim_id_00000080', got '{top_match['product_id']}'")
             return False
             
         if not np.isclose(top_match['similarity_score'], 1.0, atol=1e-3):
