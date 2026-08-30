@@ -106,25 +106,13 @@ export const getImageUrl = (imagePath, name, category, productId) => {
     return imagePath;
   }
   
-  if (CLEAN_URL && !CLEAN_URL.includes('loca.lt')) {
-    let cleanPath = imagePath.replace(/\\/g, '/');
-    cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
-    return `${CLEAN_URL}/images/${cleanPath}`;
-  }
+  // Clean dataset relative path
+  let cleanPath = imagePath.replace(/\\/g, '/');
+  cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
 
-  // Use real fashion photography matching product category
-  const cat = (category || name || '').toUpperCase();
-  let pool = FASHION_PHOTOS.DEFAULT;
-
-  if (cat.includes('DRESS')) pool = FASHION_PHOTOS.DRESSES;
-  else if (cat.includes('JACKET') || cat.includes('COAT')) pool = FASHION_PHOTOS.JACKETS_COATS;
-  else if (cat.includes('DENIM') || cat.includes('JEAN')) pool = FASHION_PHOTOS.DENIM;
-  else if (cat.includes('SHIRT') || cat.includes('BLOUSE')) pool = FASHION_PHOTOS.SHIRTS;
-  else if (cat.includes('PANT')) pool = FASHION_PHOTOS.PANTS;
-
-  const keyStr = (productId || name || imagePath || '0');
-  const hash = keyStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return pool[hash % pool.length];
+  // Serve actual DeepFashion dataset image file directly from FastAPI backend /images mount
+  const base = BACKEND_BASE || 'http://localhost:8000';
+  return `${base}/images/${cleanPath}`;
 };
 
 export const getFallbackImage = (category, name, productId) => {
