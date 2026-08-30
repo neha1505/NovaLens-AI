@@ -3,6 +3,7 @@ import axios from 'axios';
 // Dynamic Backend URL for Local Dev & Vercel Production Deployment
 const RAW_URL = (import.meta.env.VITE_API_URL || '').trim();
 const CLEAN_URL = RAW_URL.replace(/\s+/g, '').replace(/\/api\/?$/, '').replace(/\/$/, '');
+const BACKEND_BASE = CLEAN_URL || 'http://localhost:8000';
 const API_BASE_URL = CLEAN_URL ? `${CLEAN_URL}/api` : '/api';
 
 const api = axios.create({
