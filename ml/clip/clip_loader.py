@@ -1,3 +1,4 @@
+import gc
 import torch
 import clip
 import threading
@@ -16,25 +17,30 @@ class CLIPLoader:
             return cls._instance
 
     def __init__(self):
-        # Lazy initialization to prevent startup timeouts on cloud deployments
         pass
 
     def get_model_and_preprocess(self):
         if not self._initialized:
             with self._lock:
                 if not self._initialized:
+                    gc.collect()
                     try:
-                        torch.set_num_threads(2)
+                        torch.set_num_threads(1)
                     except Exception:
                         pass
                     
                     self.device = "cuda" if torch.cuda.is_available() else "cpu"
                     print(f"Loading CLIP model 'ViT-B/32' on device: {self.device}...")
                     
-                    self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
+                    # Load model with jit=False and disable gradients to minimize RAM overhead
+                    self.model, self.preprocess = clip.load("ViT-B/32", device=self.device, jit=False)
                     self.model.eval()
+                    for p in self.model.parameters():
+                        p.requires_grad = False
+                    
+                    gc.collect()
                     self._initialized = True
-                    print("CLIP model loaded successfully.")
+                    print("CLIP model loaded successfully with memory optimization.")
                     
         return self.model, self.preprocess
 
