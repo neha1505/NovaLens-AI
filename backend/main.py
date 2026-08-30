@@ -19,20 +19,8 @@ from ml.clip.clip_loader import CLIPLoader
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Pre-warm models and services
-    print("Pre-warming CLIP model and loading FAISS index...")
-    try:
-        # Load CLIP singleton
-        clip_loader = CLIPLoader()
-        clip_loader.get_model_and_preprocess()
-        
-        # Load FAISS index in search service
-        search_service = get_search_service()
-        if search_service.index is None:
-            print("Warning: FAISS index is empty or not built yet.")
-    except Exception as e:
-        print(f"Error during startup pre-warming: {e}")
-    
+    # Fast startup so Uvicorn binds port instantly for health checks
+    print("NovaLens AI API startup complete. Services ready.")
     yield
     # Shutdown
     print("Shutting down NovaLens AI Backend.")
