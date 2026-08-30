@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Dynamic Backend URL for Local Dev & Vercel Production Deployment
-const RAW_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-const BACKEND_BASE = RAW_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
-const API_BASE_URL = `${BACKEND_BASE}/api`;
+const RAW_URL = import.meta.env.VITE_API_URL || '';
+const BACKEND_BASE = RAW_URL ? RAW_URL.replace(/\/api\/?$/, '').replace(/\/$/, '') : '';
+const API_BASE_URL = BACKEND_BASE ? `${BACKEND_BASE}/api` : '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -1,13 +1,7 @@
---extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
-gunicorn
 pandas
 numpy
 pillow
-torch
-torchvision
-faiss-cpu
-git+https://github.com/openai/CLIP.git
 python-multipart
 httpx

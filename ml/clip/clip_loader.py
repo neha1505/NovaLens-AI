@@ -1,7 +1,12 @@
 import gc
-import torch
-import clip
 import threading
+
+try:
+    import torch
+    import clip
+except ImportError:
+    torch = None
+    clip = None
 
 class CLIPLoader:
     _instance = None
@@ -23,6 +28,14 @@ class CLIPLoader:
         if not self._initialized:
             with self._lock:
                 if not self._initialized:
+                    if torch is None or clip is None:
+                        print("Torch/CLIP not installed. Using lightweight catalog matching mode.")
+                        self.model = None
+                        self.preprocess = None
+                        self.device = "cpu"
+                        self._initialized = True
+                        return None, None
+
                     gc.collect()
                     try:
                         torch.set_num_threads(1)
@@ -32,15 +45,18 @@ class CLIPLoader:
                     self.device = "cuda" if torch.cuda.is_available() else "cpu"
                     print(f"Loading CLIP model 'ViT-B/32' on device: {self.device}...")
                     
-                    # Load model with jit=False and disable gradients to minimize RAM overhead
-                    self.model, self.preprocess = clip.load("ViT-B/32", device=self.device, jit=False)
-                    self.model.eval()
-                    for p in self.model.parameters():
-                        p.requires_grad = False
-                    
+                    try:
+                        self.model, self.preprocess = clip.load("ViT-B/32", device=self.device, jit=False)
+                        self.model.eval()
+                        for p in self.model.parameters():
+                            p.requires_grad = False
+                    except Exception as e:
+                        print(f"Warning: Model load bypassed due to memory: {e}")
+                        self.model = None
+                        self.preprocess = None
+
                     gc.collect()
                     self._initialized = True
-                    print("CLIP model loaded successfully with memory optimization.")
                     
         return self.model, self.preprocess
 
