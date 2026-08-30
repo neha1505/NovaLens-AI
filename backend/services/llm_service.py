@@ -64,8 +64,9 @@ class LLMService:
         temperature: float
     ) -> str:
         if not self.gemini_key:
-            # Look up standard GEMINI_API_KEY. If still empty, try to give a clean user warning
-            raise ValueError("GEMINI_API_KEY is not configured in the environment.")
+            self.gemini_key = os.getenv("GEMINI_API_KEY", "")
+        if not self.gemini_key:
+            return "I am NovaLens AI Fashion Assistant! I have analyzed your catalog to curate matching items for your prompt below. To enable full conversational styling powered by Google Gemini, please configure GEMINI_API_KEY in your backend environment variables."
 
         # Sequence of models to try in case of rate limits (429) or high demand (503) errors
         models_to_try = [self.gemini_model]
