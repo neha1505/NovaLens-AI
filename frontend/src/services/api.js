@@ -111,9 +111,8 @@ export const getImageUrl = (imagePath, name, category, productId) => {
   let cleanPath = imagePath.replace(/\\/g, '/');
   cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
 
-  // Serve actual DeepFashion dataset image file directly from FastAPI backend /images mount
-  const base = BACKEND_BASE || 'http://localhost:8000';
-  return `${base}/images/${cleanPath}`;
+  // Serve actual DeepFashion dataset photo natively from Vercel static bundle
+  return `/images/${cleanPath}`;
 };
 
 export const getFallbackImage = (category, name, productId) => {
