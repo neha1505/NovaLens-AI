@@ -7,12 +7,15 @@ try:
 except ImportError:
     torch = None
 
-def get_image_embedding(image: Image.Image) -> np.ndarray:
+def get_image_embedding(image) -> np.ndarray:
     """
-    Generates a 512-dimensional CLIP image embedding for a PIL Image.
+    Generates a 512-dimensional CLIP image embedding for a PIL Image or file path.
     """
     if image is None:
         raise ValueError("Provided image object cannot be None.")
+
+    if isinstance(image, str):
+        image = Image.open(image).convert('RGB')
 
     loader = CLIPLoader()
     model, preprocess = loader.get_model_and_preprocess()
