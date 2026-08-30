@@ -65,20 +65,66 @@ export const multimodalSearch = async (image, queryText, imageWeight) => {
   }
 };
 
-export const getImageUrl = (imagePath, name, category) => {
-  if (!imagePath) return getFallbackImage(category, name);
+const FASHION_PHOTOS = {
+  DRESSES: [
+    "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1612423284934-2850a4ea6b0f?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1595777457583-95e059d581b8?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80"
+  ],
+  JACKETS_COATS: [
+    "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=600&q=80"
+  ],
+  DENIM: [
+    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1584370848010-d7fe6bc767ec?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=600&q=80"
+  ],
+  SHIRTS: [
+    "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=600&q=80"
+  ],
+  PANTS: [
+    "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=600&q=80"
+  ],
+  DEFAULT: [
+    "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&q=80"
+  ]
+};
+
+export const getImageUrl = (imagePath, name, category, productId) => {
+  if (!imagePath) return getFallbackImage(category, name, productId);
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
-  // Sanitize path separators and remove leading redundant prefixes
-  let cleanPath = imagePath.replace(/\\/g, '/');
-  cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
   
   if (CLEAN_URL && !CLEAN_URL.includes('loca.lt')) {
+    let cleanPath = imagePath.replace(/\\/g, '/');
+    cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
     return `${CLEAN_URL}/images/${cleanPath}`;
   }
-  
-  return getFallbackImage(category, name);
+
+  // Use real fashion photography matching product category
+  const cat = (category || name || '').toUpperCase();
+  let pool = FASHION_PHOTOS.DEFAULT;
+
+  if (cat.includes('DRESS')) pool = FASHION_PHOTOS.DRESSES;
+  else if (cat.includes('JACKET') || cat.includes('COAT')) pool = FASHION_PHOTOS.JACKETS_COATS;
+  else if (cat.includes('DENIM') || cat.includes('JEAN')) pool = FASHION_PHOTOS.DENIM;
+  else if (cat.includes('SHIRT') || cat.includes('BLOUSE')) pool = FASHION_PHOTOS.SHIRTS;
+  else if (cat.includes('PANT')) pool = FASHION_PHOTOS.PANTS;
+
+  const keyStr = (productId || name || imagePath || '0');
+  const hash = keyStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return pool[hash % pool.length];
 };
 
 export const getFallbackImage = (category, name, productId) => {
