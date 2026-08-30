@@ -1,5 +1,6 @@
 import os
 import sys
+import traceback
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -7,8 +8,12 @@ from contextlib import asynccontextmanager
 
 # Add base directory and backend directory to path so imports work in all environments
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(base_dir)
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+if base_dir not in sys.path:
+    sys.path.insert(0, base_dir)
+
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
 
 try:
     from backend.routes.image_search import router as search_router
@@ -17,13 +22,18 @@ try:
     from backend.routes.products import router as products_router
     from backend.routes.assistant import router as assistant_router
     from backend.routes.shopping_intelligence import router as shopping_intelligence_router
-except ImportError:
-    from routes.image_search import router as search_router
-    from routes.text_search import router as text_router
-    from routes.multimodal_search import router as multimodal_router
-    from routes.products import router as products_router
-    from routes.assistant import router as assistant_router
-    from routes.shopping_intelligence import router as shopping_intelligence_router
+except Exception as e:
+    print(f"Primary route import failed: {e}. Trying fallback route imports...")
+    try:
+        from routes.image_search import router as search_router
+        from routes.text_search import router as text_router
+        from routes.multimodal_search import router as multimodal_router
+        from routes.products import router as products_router
+        from routes.assistant import router as assistant_router
+        from routes.shopping_intelligence import router as shopping_intelligence_router
+    except Exception as e2:
+        print(f"Fallback route import failed: {e2}")
+        traceback.print_exc()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -66,12 +76,15 @@ else:
     print(f"Warning: DeepFashion folder does not exist at {deepfashion_dir}")
 
 # Include search routes
-app.include_router(search_router, prefix="/api")
-app.include_router(text_router, prefix="/api")
-app.include_router(multimodal_router, prefix="/api")
-app.include_router(products_router, prefix="/api")
-app.include_router(assistant_router, prefix="/api")
-app.include_router(shopping_intelligence_router, prefix="/api")
+try:
+    app.include_router(search_router, prefix="/api")
+    app.include_router(text_router, prefix="/api")
+    app.include_router(multimodal_router, prefix="/api")
+    app.include_router(products_router, prefix="/api")
+    app.include_router(assistant_router, prefix="/api")
+    app.include_router(shopping_intelligence_router, prefix="/api")
+except Exception as e:
+    print(f"Error attaching routers: {e}")
 
 @app.get("/")
 async def root():
