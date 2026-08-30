@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-// Backend runs on http://localhost:8000
-const API_BASE_URL = 'http://localhost:8000/api';
+// Dynamic Backend URL for Local Dev & Vercel Production Deployment
+const RAW_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BACKEND_BASE = RAW_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+const API_BASE_URL = `${BACKEND_BASE}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -67,7 +69,7 @@ export const getImageUrl = (imagePath) => {
   // Sanitize path separators and remove leading redundant prefixes
   let cleanPath = imagePath.replace(/\\/g, '/');
   cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
-  return `http://localhost:8000/images/${cleanPath}`;
+  return `${BACKEND_BASE}/images/${cleanPath}`;
 };
 
 export const getFallbackImage = (category, name, productId) => {
