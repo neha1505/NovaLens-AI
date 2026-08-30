@@ -58,7 +58,16 @@ base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 deepfashion_dir = os.path.join(base_dir, "data", "DeepFashion")
 
 if os.path.exists(deepfashion_dir):
-    app.mount("/images/DeepFashion", StaticFiles(directory=deepfashion_dir), name="deepfashion_images")
+    app.mount(
+        "/DeepFashion",
+        StaticFiles(directory=deepfashion_dir),
+        name="deepfashion_images"
+    )
+    app.mount(
+        "/images",
+        StaticFiles(directory=deepfashion_dir),
+        name="images_static"
+    )
     print(f"Mounted static DeepFashion images folder from: {deepfashion_dir}")
 else:
     print(f"Warning: DeepFashion folder does not exist at {deepfashion_dir}")

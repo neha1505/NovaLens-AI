@@ -11,6 +11,14 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
     return 'Search Pipeline';
   };
 
+  // Get dynamic header title based on searchMode
+  const getDynamicHeaderTitle = (mode) => {
+    if (mode === 'image') return 'Visual Matches Results';
+    if (mode === 'text') return 'Semantic Matches Results';
+    if (mode === 'multimodal') return 'Multimodal Matches Results';
+    return 'Matches Results';
+  };
+
   if (loading) {
     return (
       <div className="mt-12 space-y-6">
@@ -123,7 +131,7 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
       {/* Grid Header */}
       <div className="border-b border-[#16324F]/80 pb-4">
         <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#10243A] flex items-center gap-2">
-          <span>Visual Matches Results</span>
+          <span>{getDynamicHeaderTitle(searchMode)}</span>
           <span className="text-[10px] font-bold text-[#16324F] bg-[#16324F]/5 border border-[#16324F]/10 px-2 py-0.5 rounded-full">
             Top {results.length} items
           </span>

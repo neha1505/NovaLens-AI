@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getImageUrl } from '../services/api';
+import { getImageUrl, getFallbackImage } from '../services/api';
 import { Eye } from 'lucide-react';
 
 function ProductCard({ product }) {
@@ -13,8 +13,6 @@ function ProductCard({ product }) {
   const similarityPercent = similarity_score !== undefined && similarity_score !== null
     ? (similarity_score * 100).toFixed(0)
     : null;
-
-  const fallbackImage = 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=400&q=80';
 
   return (
     <div 
@@ -37,7 +35,7 @@ function ProductCard({ product }) {
         )}
 
         <img
-          src={imgError ? fallbackImage : getImageUrl(image_path)}
+          src={imgError ? getFallbackImage(category, name, product_id) : getImageUrl(image_path)}
           alt={name}
           loading="lazy"
           className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 ${

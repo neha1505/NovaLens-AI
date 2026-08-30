@@ -97,6 +97,19 @@ def execute_faiss_search(index, query_vector: np.ndarray, top_k: int):
     distances, indices = index.search(query_vector, k)
     return distances[0], indices[0]
 
+def calibrate_similarity_score(raw_score: float) -> float:
+    """
+    Calibrates raw CLIP cosine similarity (typically 0.15 - 0.38)
+    to a human-intuitive match confidence scale between 0.60 (60%) and 0.98 (98%).
+    """
+    if raw_score <= 0.0:
+        return 0.0
+    if raw_score >= 0.99:
+        return float(raw_score)
+    # Min-max scaling around typical CLIP range [0.18, 0.36]
+    calibrated = 0.60 + ((raw_score - 0.18) / (0.36 - 0.18)) * (0.95 - 0.60)
+    return float(max(0.50, min(0.98, round(calibrated, 4))))
+
 def retrieve_product_metadata(
     metadata: List[Dict[str, Any]], 
     indices: np.ndarray, 

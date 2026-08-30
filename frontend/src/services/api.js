@@ -64,7 +64,16 @@ export const getImageUrl = (imagePath) => {
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
-  return `http://localhost:8000/images/${imagePath}`;
+  // Sanitize path separators and remove leading redundant prefixes
+  let cleanPath = imagePath.replace(/\\/g, '/');
+  cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
+  return `http://localhost:8000/images/${cleanPath}`;
+};
+
+export const getFallbackImage = (category, name, productId) => {
+  const title = (name || category || 'Fashion Item').slice(0, 30);
+  const encodedTitle = encodeURIComponent(title);
+  return `https://placehold.co/400x500/16324F/FFFFFF?text=${encodedTitle}`;
 };
 
 export const getProductDetails = async (productId) => {

@@ -26,7 +26,9 @@ def test_pipeline():
 
     # 2. Test Image Embedding generation
     print("\n2. Testing image embedding generation...")
-    sample_img_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+    sample_img_path = os.path.join("data", "DeepFashion", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+    if not os.path.exists(sample_img_path):
+        sample_img_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
     if not os.path.exists(sample_img_path):
         print(f"[FAIL] Sample image not found at: {sample_img_path}")
         return False

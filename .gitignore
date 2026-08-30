@@ -12,6 +12,8 @@ env/
 .env
 .env.local
 .env.production
+frontend/.env
+backend/.env
 
 # FastAPI / Logs
 *.log

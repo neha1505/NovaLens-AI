@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Tag, Info, ShoppingBag, Eye, Sparkles, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react';
-import { getProductDetails, getSimilarProducts, getImageUrl, getProductOutfit, getProductComparison } from '../services/api';
+import { getProductDetails, getSimilarProducts, getImageUrl, getProductOutfit, getProductComparison, getFallbackImage } from '../services/api';
 import ProductCard from '../components/ProductCard';
 
 const getFaviconUrl = (retailer) => {
@@ -190,7 +190,7 @@ function ProductDetails() {
     };
   }, [productId]);
 
-  const fallbackImage = 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=400&q=80';
+
 
   if (loading) {
     return (
@@ -352,7 +352,7 @@ function ProductDetails() {
               )}
               
               <img
-                src={imgError ? fallbackImage : getImageUrl(product.image_path)}
+                src={imgError ? getFallbackImage(product.category, product.name, product.product_id) : getImageUrl(product.image_path)}
                 alt={product.name}
                 className={`max-h-[300px] md:max-h-[380px] max-w-full object-contain transition-transform duration-500 hover:scale-102 ${
                   imgLoaded ? 'opacity-100' : 'opacity-0'
@@ -673,6 +673,9 @@ function ProductDetails() {
                               src={getImageUrl(offer.image_url)} 
                               alt={offer.product_name} 
                               className="max-h-full max-w-full object-contain"
+                              onError={(e) => {
+                                e.target.src = getFallbackImage(offer.category || product.category, offer.product_name || product.name, offer.product_id || product.product_id);
+                              }}
                             />
                           </div>
                           

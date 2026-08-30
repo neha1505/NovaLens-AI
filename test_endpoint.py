@@ -6,7 +6,9 @@ def test_api_endpoint():
     print("=== NovaLens AI API Endpoint Verification Test ===")
     
     url = "http://127.0.0.1:8000/api/image-search"
-    image_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+    image_path = os.path.join("data", "DeepFashion", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+    if not os.path.exists(image_path):
+        image_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
     
     if not os.path.exists(image_path):
         print(f"[FAIL] Test image not found at: {image_path}")
