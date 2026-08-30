@@ -7,6 +7,7 @@ const API_BASE_URL = `${BACKEND_BASE}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 60000, // 60 second timeout to accommodate Render free tier cold-starts
 });
 
 export const searchByImage = async (imageFile) => {
