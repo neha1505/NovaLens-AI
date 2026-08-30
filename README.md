@@ -1,3 +1,12 @@
+---
+title: NovaLens AI Backend
+emoji: 👗
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+---
+
 <h1 align="center" style="background-color: #16324F; color: #FFFFFF; font-weight: bold; padding: 25px; border-radius: 16px;">NovaLens AI: Multimodal Fashion Discovery Platform</h1>
 
 NovaLens AI is a modern, premium, multimodal fashion discovery platform. The project is fully completed and operational, enabling customers to discover clothing via visual similarities, semantic natural language, or a hybrid combination of both. It leverages state-of-the-art vector embeddings, similarity search indices, and a personalized recommendation engine to provide a state-of-the-art catalog retrieval experience.
