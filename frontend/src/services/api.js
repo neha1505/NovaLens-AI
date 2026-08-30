@@ -46,12 +46,16 @@ export const searchByText = async (query) => {
 export const multimodalSearch = async (image, queryText, imageWeight) => {
   const formData = new FormData();
   if (image) {
+    formData.append('file', image);
     formData.append('image', image);
   }
   if (queryText) {
+    formData.append('text_prompt', queryText);
     formData.append('query_text', queryText);
   }
-  formData.append('image_weight', imageWeight);
+  const w = imageWeight !== undefined && imageWeight !== null ? imageWeight : 0.5;
+  formData.append('weight', w);
+  formData.append('image_weight', w);
 
   try {
     const response = await api.post('/multimodal-search', formData, {

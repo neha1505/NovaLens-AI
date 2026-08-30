@@ -1,8 +1,14 @@
 from fastapi import APIRouter, File, Form, UploadFile, HTTPException, Depends
 from typing import List
-from backend.schemas.product_schema import ProductSearchResult
-from backend.utils.image_utils import validate_and_load_image
-from backend.services.multimodal_search_service import MultimodalSearchService
+
+try:
+    from backend.schemas.product_schema import ProductSearchResult
+    from backend.utils.image_utils import validate_and_load_image
+    from backend.services.multimodal_search_service import MultimodalSearchService
+except ImportError:
+    from schemas.product_schema import ProductSearchResult
+    from utils.image_utils import validate_and_load_image
+    from services.multimodal_search_service import MultimodalSearchService
 
 router = APIRouter()
 _multimodal_search_service = None
@@ -19,57 +25,63 @@ def get_multimodal_service() -> MultimodalSearchService:
             )
     return _multimodal_search_service
 
-@router.post("/multimodal-search", response_model=List[ProductSearchResult])
+@router.post("/multimodal-search")
 async def search_multimodal(
+    file: UploadFile = File(None),
     image: UploadFile = File(None),
-    query_text: str = Form(None),
-    image_weight: float = Form(0.7),
-    search_service: MultimodalSearchService = Depends(get_multimodal_service)
+    text_prompt: str = Form(""),
+    query_text: str = Form(""),
+    weight: float = Form(None),
+    image_weight: float = Form(None),
+    multimodal_service: MultimodalSearchService = Depends(get_multimodal_service)
 ):
     """
-    Search the product catalog combining visual (image) and textual intent using embedding fusion.
-    Requires an uploaded image file, query text, and an optional image_weight form parameter.
+    Combines an uploaded image with an optional text prompt and a blend weight parameter [0.0 - 1.0].
+    Returns top matching products along with real-time explainability vector fusion details.
     """
-    # 1. Validation for empty requests or missing elements
-    clean_query = query_text.strip() if query_text is not None else None
-    
-    if image is None and (clean_query is None or clean_query == ""):
+    upload_file = file or image
+    prompt = text_prompt or query_text
+    blend_weight = weight if weight is not None else (image_weight if image_weight is not None else 0.5)
+
+    if not upload_file and not prompt:
         raise HTTPException(
             status_code=400,
-            detail="Request is empty. Please upload an image, enter query text, or both."
+            detail="Please provide an image file or a text query for multimodal search."
         )
 
-    if not (0.0 <= image_weight <= 1.0):
+    loaded_image = None
+    if upload_file and upload_file.filename:
+        loaded_image = await validate_and_load_image(upload_file)
+
+    if blend_weight < 0.0 or blend_weight > 1.0:
         raise HTTPException(
             status_code=400,
-            detail="Image weight influence must be between 0.0 and 1.0."
+            detail="Blend weight must be a float value between 0.0 and 1.0."
         )
 
-    # 2. Validate and convert image upload to PIL Image if present
-    pil_image = None
-    if image is not None:
-        try:
-            pil_image = validate_and_load_image(image)
-        except HTTPException as e:
-            # Re-raise explicit HTTP exceptions from image validation utility
-            raise e
-        except Exception as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid or corrupted image format: {str(e)}"
-            )
-
-    # 3. Execute fused search query
     try:
-        results = search_service.search(pil_image, clean_query, image_weight, top_k=10)
-        return results
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
+        results = multimodal_service.search(
+            image=loaded_image,
+            query_text=prompt,
+            image_weight=blend_weight,
+            top_k=10
         )
+        
+        # Map raw dictionary objects to validated ProductSearchResult schemas
+        formatted_results = [ProductSearchResult(**r) for r in results]
+        
+        return {
+            "results": formatted_results,
+            "explainability": {
+                "text_prompt": prompt,
+                "image_weight": blend_weight,
+                "text_weight": 1.0 - blend_weight
+            }
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred during multimodal search execution: {str(e)}"
+            detail=f"Failed to execute multimodal search pipeline: {str(e)}"
         )
