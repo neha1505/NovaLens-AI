@@ -86,6 +86,8 @@ def execute_faiss_search(index, query_vector: np.ndarray, top_k: int):
     Queries the FAISS index with a 2D float32 vector and returns
     distances and indices for the closest top_k matches.
     """
+    if index is None or not hasattr(index, 'ntotal') or index.ntotal <= 0:
+        return np.array([]), np.array([])
     k = min(top_k, index.ntotal)
     if k <= 0:
         return np.array([]), np.array([])

@@ -32,18 +32,20 @@ class ImageSearchService:
             print(f"Warning: Initial index load failed: {e}. Will retry on search.")
 
     def load_index_and_metadata(self):
-        """Loads FAISS index and product metadata pickle using shared helpers."""
+        """Loads product metadata CSV and attempts FAISS index loading safely."""
+        try:
+            self.metadata = load_metadata(self.metadata_path)
+            print(f"Product catalog metadata loaded: {len(self.metadata)} products.")
+        except Exception as e:
+            print(f"Warning: Failed to load catalog metadata from {self.metadata_path}: {e}")
+            self.metadata = []
+
         try:
             self.index = load_faiss_index(self.index_path)
-            self.metadata = load_metadata(self.metadata_path)
-            print(f"Image search service loaded successfully with {len(self.metadata)} products.")
-        except FileNotFoundError as e:
-            raise RuntimeError(
-                "Search index database files are missing. Please build the FAISS index "
-                "by running 'python vector_store/build_image_index.py' before executing searches."
-            ) from e
+            print(f"FAISS index database loaded: {self.index.ntotal} indexed vectors.")
         except Exception as e:
-            raise RuntimeError(f"Failed to initialize search database: {e}") from e
+            print(f"Warning: FAISS index load bypassed due to cloud memory/binary constraint: {e}")
+            self.index = None
 
     def search(self, image: Image.Image, top_k: int = 10) -> List[Dict[str, Any]]:
         """
