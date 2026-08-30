@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 pandas
@@ -8,6 +9,4 @@ torchvision
 faiss-cpu
 git+https://github.com/openai/CLIP.git
 python-multipart
-realesrgan
-opencv-contrib-python
 httpx
