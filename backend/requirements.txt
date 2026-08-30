@@ -1,6 +1,7 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
+gunicorn
 pandas
 numpy
 pillow
