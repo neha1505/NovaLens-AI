@@ -65,22 +65,27 @@ export const multimodalSearch = async (image, queryText, imageWeight) => {
   }
 };
 
-export const getImageUrl = (imagePath) => {
-  if (!imagePath) return "";
+export const getImageUrl = (imagePath, name, category) => {
+  if (!imagePath) return getFallbackImage(category, name);
   if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
     return imagePath;
   }
   // Sanitize path separators and remove leading redundant prefixes
   let cleanPath = imagePath.replace(/\\/g, '/');
   cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
-  const base = CLEAN_URL || '';
-  return `${base}/images/${cleanPath}`;
+  
+  if (CLEAN_URL && !CLEAN_URL.includes('loca.lt')) {
+    return `${CLEAN_URL}/images/${cleanPath}`;
+  }
+  
+  return getFallbackImage(category, name);
 };
 
 export const getFallbackImage = (category, name, productId) => {
   const title = (name || category || 'Fashion Item').slice(0, 30);
-  const encodedTitle = encodeURIComponent(title);
-  return `https://placehold.co/400x500/16324F/FFFFFF?text=${encodedTitle}`;
+  const cleanTitle = title.replace(/[^\w\s-]/g, '').trim();
+  const encodedTitle = encodeURIComponent(cleanTitle || 'Fashion Item');
+  return `https://placehold.co/400x500/16324F/FFFFFF.png?text=${encodedTitle}`;
 };
 
 export const getProductDetails = async (productId) => {
