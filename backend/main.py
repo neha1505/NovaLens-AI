@@ -86,6 +86,11 @@ try:
 except Exception as e:
     print(f"Error attaching routers: {e}")
 
+@app.get("/health")
+@app.get("/api/health")
+async def health():
+    return {"status": "ok", "app": "NovaLens AI"}
+
 # Serve built React frontend statically if present
 frontend_dist_dir = os.path.join(base_dir, "frontend", "dist")
 if os.path.exists(frontend_dist_dir):
