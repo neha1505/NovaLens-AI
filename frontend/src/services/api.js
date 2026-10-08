@@ -115,7 +115,10 @@ export const getImageUrl = (imagePath, name, category, productId) => {
   let cleanPath = imagePath.replace(/\\/g, '/');
   cleanPath = cleanPath.replace(/^(\/)?(data\/)?(DeepFashion\/)?/, '');
 
-  // Serve actual DeepFashion dataset photo natively from Vercel static bundle
+  if (BACKEND_BASE) {
+    return `${BACKEND_BASE}/images/${cleanPath}`;
+  }
+
   return `/images/${cleanPath}`;
 };
 

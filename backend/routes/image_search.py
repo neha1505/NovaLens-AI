@@ -1,12 +1,17 @@
 from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 from typing import List
-from backend.schemas.product_schema import ProductSearchResult
-from backend.utils.image_utils import validate_and_load_image
-from backend.services.image_search_service import ImageSearchService
+
+try:
+    from backend.schemas.product_schema import ProductSearchResult
+    from backend.utils.image_utils import validate_and_load_image
+    from backend.services.image_search_service import ImageSearchService
+except ImportError:
+    from schemas.product_schema import ProductSearchResult
+    from utils.image_utils import validate_and_load_image
+    from services.image_search_service import ImageSearchService
 
 router = APIRouter()
 
-# Singleton-like shared instance for the service
 _search_service = None
 
 def get_search_service() -> ImageSearchService:
@@ -27,18 +32,15 @@ async def search_by_image(
     search_service: ImageSearchService = Depends(get_search_service)
 ):
     """
-    Search the product catalog for visually similar items.
-    Accepts an uploaded image file and returns the top 10 ranked products.
+    Accepts an uploaded image file, processes it, and returns top K matching products.
     """
-    # 1. Validate and convert upload file to PIL Image
-    image = validate_and_load_image(file)
+    image = await validate_and_load_image(file)
 
-    # 2. Perform vector similarity search
     try:
         results = search_service.search(image, top_k=10)
         return results
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred during search: {str(e)}"
+            detail=f"Failed to execute visual search pipeline: {str(e)}"
         )

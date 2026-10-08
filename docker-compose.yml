@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  novalens-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: novalens_ai_app
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+      - LLM_PROVIDER=gemini
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: always

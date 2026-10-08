@@ -5,3 +5,6 @@ numpy
 pillow
 python-multipart
 httpx
+faiss-cpu
+torch --extra-index-url https://download.pytorch.org/whl/cpu
+git+https://github.com/openai/CLIP.git

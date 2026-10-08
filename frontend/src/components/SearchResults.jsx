@@ -1,13 +1,22 @@
 import React from 'react';
 import ProductCard from './ProductCard';
-import { EyeOff, AlertCircle, Database, Clock, Compass } from 'lucide-react';
+import { EyeOff, Database, Clock, Compass, Sparkles } from 'lucide-react';
 
 function SearchResults({ results, loading, searchTime, searchMode }) {
+  // Extract items array safely regardless of whether backend returns a flat list or an object { results: [...], explainability: {...} }
+  const items = Array.isArray(results)
+    ? results
+    : (results && Array.isArray(results.results) ? results.results : []);
+  
+  const explainability = results && typeof results === 'object' && !Array.isArray(results)
+    ? results.explainability
+    : null;
+
   // Translate searchMode value to friendly text
   const getFriendlyModeName = (mode) => {
     if (mode === 'image') return 'Visual Query';
     if (mode === 'text') return 'Semantic Text';
-    if (mode === 'multimodal') return 'Fuzed Modality';
+    if (mode === 'multimodal') return 'Fused Modality';
     return 'Search Pipeline';
   };
 
@@ -74,7 +83,7 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
     );
   }
 
-  if (results.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="mt-12 glass p-12 text-center max-w-xl mx-auto flex flex-col items-center space-y-4 border border-white/50 bg-white/30">
         <div className="p-4 rounded-2xl bg-[#16324F]/5 text-[#5B7083] border border-[#16324F]/10">
@@ -101,7 +110,7 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B7083] leading-none">Results Found</p>
-            <p className="text-xl font-extrabold text-[#10243A] mt-1.5">{results.length} Matches</p>
+            <p className="text-xl font-extrabold text-[#10243A] mt-1.5">{items.length} Matches</p>
           </div>
         </div>
 
@@ -128,19 +137,33 @@ function SearchResults({ results, loading, searchTime, searchMode }) {
         </div>
       </div>
 
+      {/* Multimodal Explainability Banner if available */}
+      {explainability && (
+        <div className="glass p-5 border border-[#4A90E2]/20 bg-[#4A90E2]/5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#16324F]">
+            <Sparkles size={16} className="text-[#4A90E2]" />
+            <span>Multimodal Vector Fusion Breakdown</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs font-mono">
+            <span>Image Weight: <b>{Math.round((explainability.image_weight || 0) * 100)}%</b></span>
+            <span>Text Weight: <b>{Math.round((explainability.text_weight || 0) * 100)}%</b></span>
+          </div>
+        </div>
+      )}
+
       {/* Grid Header */}
       <div className="border-b border-[#16324F]/80 pb-4">
         <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#10243A] flex items-center gap-2">
           <span>{getDynamicHeaderTitle(searchMode)}</span>
           <span className="text-[10px] font-bold text-[#16324F] bg-[#16324F]/5 border border-[#16324F]/10 px-2 py-0.5 rounded-full">
-            Top {results.length} items
+            Top {items.length} items
           </span>
         </h3>
       </div>
 
       {/* Product Results Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {results.map((product) => (
+        {items.map((product) => (
           <div key={product.product_id} className="h-full">
             <ProductCard product={product} />
           </div>

@@ -391,7 +391,7 @@ function ProductDetails() {
                 
                 <div className="flex items-baseline gap-4 pt-1">
                   <span className="text-2xl font-black text-[#10243A]">
-                    ₹{product.price.toLocaleString('en-IN')}
+                    ₹{typeof product?.price === 'number' ? product.price.toLocaleString('en-IN') : (product?.price || 0)}
                   </span>
                   <span className="text-[10px] font-bold text-[#5B7083] uppercase tracking-wider bg-[#EEF5FC] px-2 py-1 rounded border border-[#16324F]/5">
                     GST Inclusive
@@ -713,7 +713,7 @@ function ProductDetails() {
                         <div className="flex items-center justify-between">
                           <div className="space-y-0.5">
                             <span className="text-[8px] font-bold text-[#5B7083] uppercase tracking-wider">Offer Price</span>
-                            <p className="text-base font-black text-[#10243A]">₹{offer.price.toLocaleString('en-IN')}</p>
+                            <p className="text-base font-black text-[#10243A]">₹{typeof offer?.price === 'number' ? offer.price.toLocaleString('en-IN') : (offer?.price || 0)}</p>
                           </div>
 
                           <div className="flex flex-col items-end gap-1">

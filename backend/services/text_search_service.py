@@ -15,7 +15,7 @@ from backend.utils.search_helpers import (
     SearchPerformanceTimer
 )
 
-STOP_WORDS = {"a", "an", "the", "in", "on", "at", "for", "with", "and", "or", "of", "to", "is", "are", "women", "womens", "men", "mens"}
+STOP_WORDS = {"a", "an", "the", "in", "on", "at", "for", "with", "and", "or", "of", "to", "is", "are"}
 
 CATEGORY_SYNONYMS = {
     "dress": ["dresses", "dress"],
@@ -44,6 +44,7 @@ def compute_keyword_score(query_tokens: List[str], product: Dict[str, Any]) -> f
     name = product.get("name", "").lower()
     category = product.get("category", "").lower()
     desc = product.get("description", "").lower()
+    prod_id = product.get("product_id", "").lower()
     
     matches = 0.0
     
@@ -56,7 +57,23 @@ def compute_keyword_score(query_tokens: List[str], product: Dict[str, Any]) -> f
         elif token in desc:
             matches += 0.5
             
-    return min(1.0, matches / (len(query_tokens) * 1.2))
+    # Gender matching adjustment
+    is_women_query = any(w in query_tokens for w in ["women", "womens", "woman", "female", "ladies", "girl", "girls"])
+    is_men_query = any(m in query_tokens for m in ["men", "mens", "man", "male", "boy", "boys"]) and not is_women_query
+    
+    is_prod_women = "women" in prod_id or "women" in name or "women" in category
+    is_prod_men = "men" in prod_id or "men" in name or "men" in category
+    
+    score = min(1.0, matches / (len(query_tokens) * 1.2))
+    
+    if is_women_query and is_prod_men:
+        score *= 0.2
+    elif is_men_query and is_prod_women:
+        score *= 0.2
+    elif (is_women_query and is_prod_women) or (is_men_query and is_prod_men):
+        score = min(1.0, score * 1.3)
+        
+    return score
 
 class TextSearchService:
     def __init__(self, image_search_service: ImageSearchService = None):
@@ -91,7 +108,7 @@ class TextSearchService:
 
         scored_results = []
         
-        # 1. Vector similarity search via CLIP text embedding (guarded against RAM limits)
+        # 1. Vector similarity search via CLIP text embedding
         try:
             timer.start_section()
             query_embedding = get_text_embedding(query)
@@ -112,15 +129,31 @@ class TextSearchService:
                 distances
             )
 
+            is_women_query = any(w in query_tokens for w in ["women", "womens", "woman", "female", "ladies"])
+            is_men_query = any(m in query_tokens for m in ["men", "mens", "man", "male"]) and not is_women_query
+
             for cand in candidates:
-                raw_clip_sim = cand["similarity_score"]
-                visual_score = calibrate_similarity_score(raw_clip_sim)
+                cand_score = cand["similarity_score"]
                 keyword_score = compute_keyword_score(query_tokens, cand) if query_tokens else 0.0
                 
+                prod_id = cand.get("product_id", "").lower()
+                name = cand.get("name", "").lower()
+                category = cand.get("category", "").lower()
+                is_prod_women = "women" in prod_id or "women" in name or "women" in category
+                is_prod_men = "men" in prod_id or "men" in name or "men" in category
+
+                # Apply gender filter multiplier to CLIP vector score
+                if is_women_query and is_prod_men:
+                    cand_score *= 0.5
+                elif is_men_query and is_prod_women:
+                    cand_score *= 0.5
+                elif (is_women_query and is_prod_women) or (is_men_query and is_prod_men):
+                    cand_score = min(0.98, cand_score * 1.05)
+
                 if keyword_score > 0:
-                    hybrid_score = 0.5 * visual_score + 0.5 * min(1.0, 0.70 + 0.30 * keyword_score)
+                    hybrid_score = 0.7 * cand_score + 0.3 * keyword_score
                 else:
-                    hybrid_score = visual_score
+                    hybrid_score = cand_score
                     
                 cand_copy = cand.copy()
                 cand_copy["similarity_score"] = float(round(hybrid_score, 4))
@@ -137,9 +170,9 @@ class TextSearchService:
             if p["product_id"] in seen_ids:
                 continue
             kw_score = compute_keyword_score(query_tokens, p) if query_tokens else 0.0
-            if kw_score > 0:
+            if kw_score > 0.3:
                 p_copy = p.copy()
-                p_copy["similarity_score"] = float(round(0.75 + 0.20 * kw_score, 4))
+                p_copy["similarity_score"] = float(round(0.55 + 0.25 * kw_score, 4))
                 extra_matches.append(p_copy)
 
         extra_matches.sort(key=lambda x: x["similarity_score"], reverse=True)

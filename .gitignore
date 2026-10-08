@@ -59,6 +59,9 @@ datasets/
 uploads/
 temp/
 tmp/
+scratch/
+.vercel/
+
 
 
 # Testing

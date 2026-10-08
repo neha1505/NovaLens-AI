@@ -126,7 +126,8 @@ def retrieve_product_metadata(
         if idx == -1 or idx >= len(metadata):
             continue
         product_info = metadata[idx].copy()
-        # Cosine similarity clip
-        product_info["similarity_score"] = float(max(0.0, min(1.0, score)))
+        raw_score = float(score)
+        # Apply score calibration for standard CLIP cosine similarity ranges
+        product_info["similarity_score"] = calibrate_similarity_score(raw_score)
         results.append(product_info)
     return results

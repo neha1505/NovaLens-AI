@@ -12,7 +12,10 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.client = TestClient(app)
-        cls.sample_image_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+        sample_path = os.path.join("data", "DeepFashion", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+        if not os.path.exists(sample_path):
+            sample_path = os.path.join("data", "DeepFashion", "img_highres", "MEN", "Denim", "id_00000080", "01_1_front.jpg")
+        cls.sample_image_path = sample_path
 
     def test_multimodal_endpoint_availability(self):
         """Verify the multimodal endpoint returns a response (checks routing setup)."""
@@ -30,7 +33,8 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
             response = self.client.post("/api/multimodal-search", files=files, data=data)
             
         self.assertEqual(response.status_code, 200)
-        results = response.json()
+        payload = response.json()
+        results = payload.get("results", payload) if isinstance(payload, dict) else payload
         self.assertIsInstance(results, list)
         self.assertGreater(len(results), 0)
         
@@ -49,7 +53,8 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
         response = self.client.post("/api/multimodal-search", data=data)
         self.assertEqual(response.status_code, 200)
         
-        results = response.json()
+        payload = response.json()
+        results = payload.get("results", payload) if isinstance(payload, dict) else payload
         self.assertIsInstance(results, list)
         self.assertGreater(len(results), 0)
 
@@ -66,7 +71,8 @@ class TestMultimodalSearchEndpoint(unittest.TestCase):
             response = self.client.post("/api/multimodal-search", files=files, data=data)
             
         self.assertEqual(response.status_code, 200)
-        results = response.json()
+        payload = response.json()
+        results = payload.get("results", payload) if isinstance(payload, dict) else payload
         self.assertIsInstance(results, list)
         self.assertGreater(len(results), 0)
         

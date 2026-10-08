@@ -5,6 +5,8 @@ import { Eye } from 'lucide-react';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
+  if (!product) return null;
+
   const { product_id, name, category, price, similarity_score, image_path } = product;
   const [imgLoaded, setImgLoaded] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -14,9 +16,13 @@ function ProductCard({ product }) {
     ? (similarity_score * 100).toFixed(0)
     : null;
 
+  const formattedPrice = typeof price === 'number'
+    ? price.toLocaleString('en-IN')
+    : (price ? String(price) : '0');
+
   return (
     <div 
-      onClick={() => navigate(`/product/${product_id}`, { state: { similarity_score } })}
+      onClick={() => product_id && navigate(`/product/${product_id}`, { state: { similarity_score } })}
       className="glass glass-hover overflow-hidden flex flex-col group h-full cursor-pointer relative"
     >
       {/* Similarity Score Badge (Top-Right Floating Corner) */}
@@ -36,7 +42,7 @@ function ProductCard({ product }) {
 
         <img
           src={imgError ? getFallbackImage(category, name, product_id) : getImageUrl(image_path, name, category, product_id)}
-          alt={name}
+          alt={name || 'Product'}
           loading="lazy"
           className={`w-full h-full object-contain transition-transform duration-500 group-hover:scale-105 ${
             imgLoaded ? 'opacity-100' : 'opacity-0'
@@ -62,19 +68,19 @@ function ProductCard({ product }) {
         <div>
           {/* Category Tag */}
           <div className="text-[9px] text-[#4A90E2] font-bold uppercase tracking-wider bg-[#16324F]/5 px-2 py-0.5 rounded border border-[#16324F]/8 inline-block mb-2.5">
-            {category}
+            {category || 'FASHION'}
           </div>
 
           {/* Product Name */}
           <h3 className="text-xs font-bold text-[#10243A] group-hover:text-[#4A90E2] transition-colors duration-200 line-clamp-2 leading-tight">
-            {name}
+            {name || 'Fashion Item'}
           </h3>
         </div>
 
         <div className="mt-auto pt-3 border-t border-[#16324F]/8 flex items-center justify-between">
           <span className="text-[10px] text-[#5B7083] font-bold uppercase tracking-wider">Price</span>
           <span className="text-xs font-extrabold text-[#10243A]">
-            ₹{price.toLocaleString('en-IN')}
+            ₹{formattedPrice}
           </span>
         </div>
       </div>

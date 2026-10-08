@@ -46,7 +46,10 @@ function Home() {
   const [history, setHistory] = useState(() => {
     try {
       const saved = localStorage.getItem('novalens_search_history');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(item => item && typeof item === 'object');
     } catch (e) {
       console.error("Failed to load search history from localStorage:", e);
       return [];
@@ -140,12 +143,18 @@ function Home() {
       };
 
       setHistory((prev) => {
-        // Prevent duplicate items
+        // Prevent duplicate items safely
         const filtered = prev.filter(item => {
+          if (!item) return false;
+          const itemQuery = (item.queryText || '').toLowerCase();
+          const newQuery = (newItem.queryText || '').toLowerCase();
+          const itemImg = item.imageName || '';
+          const newImg = newItem.imageName || '';
+
           if (item.type !== newItem.type) return true;
-          if (item.type === 'text') return item.queryText.toLowerCase() !== newItem.queryText.toLowerCase();
-          if (item.type === 'image') return item.imageName !== newItem.imageName;
-          return item.queryText.toLowerCase() !== newItem.queryText.toLowerCase() || item.imageName !== newItem.imageName;
+          if (item.type === 'text') return itemQuery !== newQuery;
+          if (item.type === 'image') return itemImg !== newImg;
+          return itemQuery !== newQuery || itemImg !== newImg;
         });
 
         const updated = [newItem, ...filtered].slice(0, 10);

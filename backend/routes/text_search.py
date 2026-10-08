@@ -1,8 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from pydantic import BaseModel, Field
-from backend.schemas.product_schema import ProductSearchResult
-from backend.services.text_search_service import TextSearchService
+
+try:
+    from backend.schemas.product_schema import ProductSearchResult
+    from backend.services.text_search_service import TextSearchService
+except ImportError:
+    from schemas.product_schema import ProductSearchResult
+    from services.text_search_service import TextSearchService
 
 router = APIRouter()
 _text_search_service = None
@@ -28,8 +33,7 @@ async def search_by_text(
     search_service: TextSearchService = Depends(get_text_search_service)
 ):
     """
-    Search the product catalog for visually/semantically similar items using natural language.
-    Accepts a JSON request with a 'query' string and returns the top 10 ranked products.
+    Searches the fashion catalog using a hybrid visual CLIP vector + text metadata search.
     """
     if not request.query or not request.query.strip():
         raise HTTPException(
@@ -41,12 +45,11 @@ async def search_by_text(
         results = search_service.search(request.query.strip(), top_k=10)
         return results
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred during text search execution: {str(e)}"
+            detail=f"Failed to execute text search pipeline: {str(e)}"
         )

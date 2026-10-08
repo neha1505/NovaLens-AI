@@ -86,9 +86,15 @@ try:
 except Exception as e:
     print(f"Error attaching routers: {e}")
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to NovaLens AI API. Multimodal search backend is online."}
+# Serve built React frontend statically if present
+frontend_dist_dir = os.path.join(base_dir, "frontend", "dist")
+if os.path.exists(frontend_dist_dir):
+    app.mount("/", StaticFiles(directory=frontend_dist_dir, html=True), name="frontend_static")
+    print(f"Mounted static frontend bundle from: {frontend_dist_dir}")
+else:
+    @app.get("/")
+    async def root():
+        return {"message": "Welcome to NovaLens AI API. Multimodal search backend is online."}
 
 if __name__ == "__main__":
     import uvicorn

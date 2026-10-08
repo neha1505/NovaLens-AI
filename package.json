@@ -1,0 +1,22 @@
+{
+  "name": "novalens-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NovaLens AI - Multimodal Fashion Discovery Platform",
+  "main": "dev.js",
+  "scripts": {
+    "dev": "node dev.js",
+    "start": "node dev.js"
+  },
+  "keywords": [
+    "fashion",
+    "ai",
+    "multimodal",
+    "clip",
+    "faiss",
+    "fastapi",
+    "react"
+  ],
+  "author": "",
+  "license": "ISC"
+}

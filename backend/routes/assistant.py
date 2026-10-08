@@ -2,9 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
-from backend.routes.text_search import get_text_search_service
-from backend.services.text_search_service import TextSearchService
-from backend.services.llm_service import LLMService
+try:
+    from backend.routes.text_search import get_text_search_service
+    from backend.services.text_search_service import TextSearchService
+    from backend.services.llm_service import LLMService
+except ImportError:
+    from routes.text_search import get_text_search_service
+    from services.text_search_service import TextSearchService
+    from services.llm_service import LLMService
 
 router = APIRouter()
 

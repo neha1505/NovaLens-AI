@@ -1,10 +1,16 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import List, Optional
 from pydantic import BaseModel
-from backend.services.image_search_service import ImageSearchService
-from backend.routes.image_search import get_search_service
-from backend.utils.search_helpers import execute_faiss_search, retrieve_product_metadata
-from backend.services.outfit_service import OutfitService
+try:
+    from backend.services.image_search_service import ImageSearchService
+    from backend.routes.image_search import get_search_service
+    from backend.utils.search_helpers import execute_faiss_search, retrieve_product_metadata
+    from backend.services.outfit_service import OutfitService
+except ImportError:
+    from services.image_search_service import ImageSearchService
+    from routes.image_search import get_search_service
+    from utils.search_helpers import execute_faiss_search, retrieve_product_metadata
+    from services.outfit_service import OutfitService
 
 router = APIRouter()
 
